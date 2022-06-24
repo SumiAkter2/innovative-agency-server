@@ -1,5 +1,5 @@
 const express = require('express');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 require('dotenv').config();
 const cors = require('cors');
@@ -20,24 +20,32 @@ async function run() {
     try {
         await client.connect();
         const collection = client.db("agency").collection("services");
-        const bookingCollection = client.db("agency").collection("booking");
-        const userCollection = client.db("agency").collection("user");
+        const orderCollection = client.db("agency").collection("order");
+
         console.log('connected');
         //booking:
-        app.post('booking', async (req, res) => {
+        app.post("/order", async (req, res) => {
+            const result = await orderCollection.insertOne(req.body);
+            res.json(result);
+        });
 
-        })
 
+        app.get("/orders/:email", async (req, res) => {
+            const user = req.params.email
+            const query = { email: user }
+            const result = await orderCollection.find(query).toArray();
+            res.send(result)
+        });
 
         //user:
-        app.post('/user', async (req, res) => {
-
-            const user = await userCollection.insertOne(req.body);
-        })
-        app.get('/user', async (req, res) => {
-            const result = await userCollection.find({}).toArray();
-            res.json(result);
-        })
+        // app.post('/user', async (req, res) => {
+        //     const user = await userCollection.insertOne(req.body);
+        //     res.send(user);
+        // })
+        // app.get('/user', async (req, res) => {
+        //     const result = await userCollection.find({}).toArray();
+        //     res.json(result);
+        // })
 
 
 
@@ -46,7 +54,15 @@ async function run() {
             // query = {};
             const result = await collection.find().toArray();
             res.send(result);
-        })
+        });
+
+        //services:id
+        app.get('/services/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const result = await collection.findOne(filter);
+            res.send(result);
+        });
 
     }
     finally {
