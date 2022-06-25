@@ -22,6 +22,11 @@ async function run() {
 
         console.log('connected');
 
+        //product:
+        app.post("/services", async (req, res) => {
+            const result = await collection.insertOne(req.body);
+            res.json(result);
+        });
         //order:
         app.post("/review", async (req, res) => {
             const result = await reviewCollection.insertOne(req.body);
