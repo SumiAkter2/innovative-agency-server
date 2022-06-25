@@ -9,9 +9,6 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-
-
-
 const uri = `mongodb+srv://${process.env.DB_user}:${process.env.DB_PASS}@cluster0.9vkhq.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
@@ -21,14 +18,24 @@ async function run() {
         await client.connect();
         const collection = client.db("agency").collection("services");
         const orderCollection = client.db("agency").collection("order");
+        const reviewCollection = client.db("agency").collection("review");
 
         console.log('connected');
+
+        //order:
+        app.post("/review", async (req, res) => {
+            const result = await reviewCollection.insertOne(req.body);
+            res.json(result);
+        });
+        app.get('/review', async (req, res) => {
+            const result = await reviewCollection.find({}).toArray();
+            res.json(result);
+        })
         //booking:
         app.post("/order", async (req, res) => {
             const result = await orderCollection.insertOne(req.body);
             res.json(result);
         });
-
 
         app.get("/orders/:email", async (req, res) => {
             const user = req.params.email
@@ -36,6 +43,7 @@ async function run() {
             const result = await orderCollection.find(query).toArray();
             res.send(result)
         });
+
         //delete:
         app.delete("/orders/:id", async (req, res) => {
             const id = req.params.id;
