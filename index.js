@@ -19,6 +19,7 @@ async function run() {
         const collection = client.db("agency").collection("services");
         const orderCollection = client.db("agency").collection("order");
         const reviewCollection = client.db("agency").collection("review");
+        const userCollection = client.db("agency").collection("user");
 
         console.log('connected');
 
